@@ -1,0 +1,37 @@
+# ===== Secrets — NEVER commit =====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.*
+credentials.*
+
+# ===== Real data — NEVER commit =====
+# (ship sample-data.json with fake data instead)
+*.xlsx
+*.xls
+*.csv
+data/*.json
+!data/sample-data.json
+exports/
+backups/
+cache/
+.netlify/blobs/
+
+# ===== Dependencies / build =====
+node_modules/
+dist/
+build/
+.next/
+.cache/
+*.log
+npm-debug.log*
+
+# ===== Platform / editor junk =====
+.netlify/
+.vercel/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
