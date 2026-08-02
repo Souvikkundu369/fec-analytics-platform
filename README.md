@@ -169,12 +169,6 @@ Supabase PostgreSQL now stores all historical data. GitHub Actions pipelines run
 
 ---
 
-## Screenshots
-
-> _Demo-mode screenshots with fictional data go in [`/docs`](docs/)._
-
----
-
 ### Author
 
 **Souvik Kundu** — Business Intelligence & Automation Engineer.
