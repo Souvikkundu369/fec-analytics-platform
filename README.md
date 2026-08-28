@@ -62,7 +62,8 @@ flowchart LR
 | **Footfall & Spend-per-Head** | Separates "more customers came" from "each customer spent more" — the two tell very different stories. |
 | **Time-wise & Hourly Sales** | Hourly revenue breakdown — identifies exact peak windows per outlet. |
 | **Staffing Optimizer** | Translates peak-hour data into recommended counter headcount per time slot. |
-| **Voucher Analytics** | Denomination breakdown, usage rates, OTP funnel tracking (14-day and 21-day redemption cohorts), charm pricing impact. |
+| **Voucher Analytics** | Denomination breakdown, usage rates, OTP funnel tracking (14-day and 21-day redemption cohorts), charm pricing impact. Pivot table: owner × store × month in one view. |
+| **Walk-in Breakdown** | Walk-in revenue split by package tier (Unlimited / 120 / 90 / Extension) — real `wr` field backfilled to distinguish package revenue from socks addon money. |
 | **Socks Sale Pattern** | Paid sock-session attach-rate by package and store. Counts only paid sessions (net >₹60), filters redemptions. |
 | **Socks Ratio Maintenance** | Target vs actual attach-rate alert — flags underperforming stores in real time. |
 
@@ -109,6 +110,7 @@ flowchart LR
 | Feature | Detail |
 |---|---|
 | **Live Geo Map** | All 25+ outlets plotted on Leaflet.js — click any pin for store detail. Knockout (sports bar) also on map. |
+| **Store & State Rankings** | Full-list outlet rankings by revenue and footfall — national view to single-store drill-down in one table. |
 | **Multi-company switch** | Jus Jumpin (FEC) and The Knockout (sports bar, separate POS) in one dashboard — switch at top level. |
 | **Multi-POS** | Semnox/Parafait (arcade/wallet), PetPooja (F&B), and internal activity API — unified into a single revenue definition. |
 | **AI Assistant** | Ask questions in plain English. Gemini LLM uses a live summary of the dashboard as context. Voice + text input. |
