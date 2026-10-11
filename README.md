@@ -153,6 +153,31 @@ Supabase PostgreSQL now stores all historical data. GitHub Actions pipelines run
 - Age analysis flags 18,000+ January-1 placeholder DOBs automatically
 - Socks tracking filters ₹0 redemptions and sub-₹60 sessions that inflate attach rate
 
+### Management reporting that runs on the clock
+
+Leadership no longer asks for numbers; the numbers arrive. Every day, without anyone pressing a button:
+
+- **"Sales so far today" flashes at 3 PM, 6 PM and 9 PM** for both companies. Each run triggers a fresh sync of the sales sources first, then holds until the hour, so the message lands *on* the hour with numbers that are minutes old, not hours.
+- **A full daily brief at 11 PM** for the family-entertainment brand and **6 AM the next morning** for the late-night sports bar, each covering its own *closed* trading day, so the bar's report includes its after-midnight trade instead of cutting it off.
+
+### When the scheduler itself was the bug
+
+The syncs originally ran on GitHub Actions' built-in `schedule` trigger. It worked, until GitHub started delaying **every** scheduled run by around five hours. A "3 PM" sales flash arriving at 8 PM is worse than no flash.
+
+The fix moved the *clock* out of GitHub entirely: a tiny Cloudflare Worker whose only job is to fire on a precise cron and dispatch the GitHub workflow. The work still runs in GitHub Actions; only the timing moved. Two constraints shaped the result: the free plan allows **5 cron triggers per account** (all five are now in use, so every schedule had to be consolidated deliberately), and live syncs run **only during trading hours**, which keeps Actions usage within budget instead of syncing an empty night every hour.
+
+### A vendor changed their API overnight, and the sync reported "success"
+
+One night the F&B POS provider moved its API behind a CDN. The CDN rejected the request style the integration had always used (a GET request carrying a JSON body) with an HTML 403 page. The sync step treated every non-2xx response as "no orders," so it kept reporting **success** while writing **₹0 F&B** for two days. That ₹0 flowed into the dashboard, the flashes and the daily brief.
+
+The code fix was small: send the same body as POST. The real fix was the failure mode:
+
+- **A rejection is never recorded as a ₹0 day.** Any response that isn't an explicit success now fails the outlet-day, fails the job, and writes an error to the sync log.
+- **The sales flash now warns when a data source is stale**, so a broken feed surfaces in the very next report instead of in a manager's question two days later.
+- The missing days were backfilled, recovering after-midnight orders that had been lost.
+
+The lesson worth keeping: **a job that can't tell "no data" from "request refused" will eventually report a confident zero.** Silent success is more dangerous than a loud failure.
+
 ---
 
 ## Impact
@@ -167,7 +192,7 @@ Supabase PostgreSQL now stores all historical data. GitHub Actions pipelines run
 
 ## Tech stack
 
-`JavaScript` · `Node.js` · `Serverless (Netlify Functions)` · `Supabase / PostgreSQL` · `GitHub Actions` · `PetPooja API` · `Semnox / Parafait API` · `Gemini LLM API` · `Leaflet.js` · `Chart.js` · `Brevo API` · `Data Visualization` · `REST APIs` · `Git`
+`JavaScript` · `Node.js` · `Serverless (Netlify Functions)` · `Supabase / PostgreSQL` · `GitHub Actions` · `Cloudflare Workers (cron)` · `PetPooja API` · `Semnox / Parafait API` · `Gemini LLM API` · `Leaflet.js` · `Chart.js` · `Brevo API` · `Data Visualization` · `REST APIs` · `Git`
 
 ---
 
