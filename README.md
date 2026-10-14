@@ -178,6 +178,27 @@ The code fix was small: send the same body as POST. The real fix was the failure
 
 The lesson worth keeping: **a job that can't tell "no data" from "request refused" will eventually report a confident zero.** Silent success is more dangerous than a loud failure.
 
+### The harder failure: data that's wrong without any error
+
+The same week, a second source failed in a worse way. The events booking system sits behind a CDN that first stopped answering requests from the sync servers, then started answering them with **stale cached copies**: clean, valid data with no error at all, just missing the newest bookings. The same request from an office PC showed bookings the sync never received. Two morning reports went out without large events in them.
+
+Retries alone can't fix this, because nothing fails. The fix had three layers:
+
+- **Never accept a cached answer:** every request carries a cache-busting parameter and `no-cache` headers, with retries, timeouts and a hard failure if any chunk doesn't arrive.
+- **Sync at the right moment:** late-night events are billed close to midnight, so the final sync before the morning report now includes the events source, not just sales.
+- **Cross-check sources against each other.** Event food appears in the café's POS; the event itself is a booking in a separate system. **Event food sold on a day with no event booking recorded** means a booking is missing, which is exactly the signal that exposed this bug.
+
+Every daily brief now opens with a **data check**: an amber box above the figures if any source failed or is older than the trading-day close, or if the cross-check finds that mismatch, and a green "all data sources up to date" line otherwise. **The report tells management when not to trust it**, instead of management finding out from a store.
+
+### Revenue definitions are rules, and rules must match the books
+
+Getting café revenue to match each store's own daily total to the rupee meant settling definitions explicitly, not leaving them to whatever the code happened to do:
+
+- **Service charge stays in** café revenue, because the store counts it.
+- **Event food is taken out at its share of the bill *including* tax.** Removing the pre-tax item amount had left the tax portion inside café revenue.
+- **Card sales are net of refunds**, with each refund deducted on its own day and hour; historical days were corrected by migration.
+- **Exclusions match on item name, not just category.** One outlet rang up bottled water under "Refreshers" and "Open Item," so a category-only rule had excluded *nothing* for that outlet's entire history. Matching item names fixed it and corrected the history.
+
 ---
 
 ## Impact
